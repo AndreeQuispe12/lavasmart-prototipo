@@ -11,6 +11,10 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+env/
+.env.*
+*.egg-info/
+.pytest_cache/
 
 # Local
 .claude/

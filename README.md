@@ -49,6 +49,17 @@ nombre = "Nombre visible"
 
 El nombre de usuario es lo que va después de `usuarios.`. Reinicia la app tras editar el archivo.
 
+### Despliegue en Streamlit Community Cloud
+
+1. Sube el repo a GitHub y crea la app en share.streamlit.io apuntando a `app.py`
+   (Python 3.12 o superior: pandas 3 lo exige).
+2. En *Settings → Secrets* pega el contenido de `.streamlit/secrets.toml.example` con tus claves.
+3. Si no hay CSV (el disco de Cloud es temporal y se borra al reiniciar), la app los genera
+   sola con `generate_data.py`. Todo lo que se registre en la demo se pierde al reiniciar y
+   los visitantes comparten el mismo estado.
+4. `DEMO_MODE = true` muestra en el login las cuentas `dueno_demo` y `operador_demo`
+   (datos simulados). Para ocultarlas, pon `DEMO_MODE = false` y borra esas dos cuentas de los secretos.
+
 ## Pestañas por rol
 
 | Pestaña | Operador | Dueño | Qué hace |

@@ -18,7 +18,20 @@ from store import ReglaDeNegocio
 
 st.set_page_config(page_title="LavaSmart - AquaBrillo", page_icon=Image.open(Path(__file__).parent / "assets" / "logo.png"), layout="wide")
 
+
+@st.cache_resource(show_spinner="Generando datos simulados de demostración…")
+def asegurar_datos_demo() -> None:
+    """En Streamlit Cloud el disco es temporal: tras cada reinicio no hay CSV.
+    Si falta el historial, lo genera con generate_data.py (datos simulados, placas TST...).
+    cache_resource hace que corra una sola vez por proceso aunque entren varias sesiones."""
+    if not (store.DATA / "lavados.csv").exists():
+        from generate_data import generar
+
+        generar()
+
+
 store.asegurar_catalogos()
+asegurar_datos_demo()
 
 ROLES = {"operador": "Operador", "dueno": "Dueño"}
 
@@ -330,6 +343,14 @@ def usuarios_configurados() -> dict:
         return {}
 
 
+def demo_mode_activo() -> bool:
+    """El recuadro con las cuentas demo solo sale si st.secrets tiene DEMO_MODE = true."""
+    try:
+        return st.secrets.get("DEMO_MODE", False) is True
+    except Exception:
+        return False
+
+
 def pantalla_login():
     usuarios = usuarios_configurados()
     # Solo en el login: foto de fondo a pantalla completa y la tarjeta del formulario al centro
@@ -381,7 +402,13 @@ def pantalla_login():
                         st.rerun()
                     else:
                         st.error("Usuario o contraseña incorrectos")
-            st.caption("Prototipo de validación · los datos mostrados son simulados.")
+            if demo_mode_activo():
+                st.info(
+                    "**Acceso de demostración (datos simulados)**  \n"
+                    "Dueño → usuario: `dueno_demo` · contraseña: `demo2026`  \n"
+                    "Operador → usuario: `operador_demo` · contraseña: `demo2026`"
+                )
+            st.caption("Prototipo de validación con datos simulados.")
 
 
 if not st.session_state.get("autenticado"):
@@ -457,6 +484,7 @@ encabezado(
     f"{_f.day} de {MESES[_f.month - 1]} de {_f.year}",
     DIAS[_f.weekday()],
 )
+st.warning("**Prototipo de validación con datos simulados.** No es el sistema final.", icon=":material/science:")
 mostrar_flash()
 
 hoy = store.hoy_lima()
